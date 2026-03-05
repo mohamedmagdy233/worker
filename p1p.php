@@ -1,7 +1,7 @@
 <?php
 
 $pageId = '434309674008905';
-$token = 'EAARdg15lAY8BQ8203lA7fH7JJdc0mk3XsNXr3aeNKS8s7X9K9uioOttn7pQReOBZAHqSX61LFDNwI3NlyIRfN6hqHDST6iR9ZCIZAkPTCmcjf6rn2QvrXZBfK5eBGkESubwJC8lb4WKNNktLqNEpyE0UIVd8F0Gz4M5F0DAgBpAxEoLK0qeyZAhm7vsgBFrTHH6mjhR6VAAVB5njfnZBysoZBOSNvsAsWcKZAfMnpGQZD';
+$token = 'EAARdg15lAY8BQxYmZA3dZCYGbQwooRWHB7JyQBxl90tqhgN6CiziAaLVRvZANHCN2inxZB7DZCw9idPnEOcR5Sn3Ab6eoshqeYWcNOMRPRNwrSMtGHkftdi6pW0l45ZAFhcKSh3An3JHty0oAI3QJfku4OGJn7WWSvQw6FvgUARjxfh9bNInRHILtfyXhRJpfF';
 
 
 $apiUrl = "https://api.alquran.cloud/v1/ayah/random/ar.quran-simple";
