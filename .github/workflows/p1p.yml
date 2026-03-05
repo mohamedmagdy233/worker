@@ -1,0 +1,16 @@
+name: Post Prophet Daily
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - run: php p1p.php
+        env:
+          FB_TOKEN: ${{ secrets.FB_TOKEN }}
