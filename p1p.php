@@ -1,26 +1,117 @@
+
 <?php
 
+mb_internal_encoding('UTF-8');
 
+/*
+|--------------------------------------------------------------------------
+| إعدادات
+|--------------------------------------------------------------------------
+*/
 $pageId = '434309674008905';
+$accessToken = 'EAARdg15lAY8BQ4POkyhj3beYt5YBDHWp2RaFW5MNr7oFSgiZBrSPDAtXi07vA6EVPafJLQ3YlS1LID5CW8OVSifUsR6X6XWnOcEV1aaceZBZA7OezQbxzISGP49zfiFuZBGkTLWqbwMbHLZBh7bje0E82XFgpZBJEZAYFeTPZAVdlZBYbP9BzhhYw8S95vyvQhzZCOprLr';
 
+/*
+|--------------------------------------------------------------------------
+| نص ثابت (الصلاة على النبي)
+|--------------------------------------------------------------------------
+*/
+$baseMessage = "إِنَّ اللَّهَ وَمَلَائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ ۚ يَا أَيُّهَا الَّذِينَ آمَنُوا صَلُّوا عَلَيْهِ وَسَلِّمُوا تَسْلِيمًا ﷺ";
 
-$token = 'EAARdg15lAY8BQ4POkyhj3beYt5YBDHWp2RaFW5MNr7oFSgiZBrSPDAtXi07vA6EVPafJLQ3YlS1LID5CW8OVSifUsR6X6XWnOcEV1aaceZBZA7OezQbxzISGP49zfiFuZBGkTLWqbwMbHLZBh7bje0E82XFgpZBJEZAYFeTPZAVdlZBYbP9BzhhYw8S95vyvQhzZCOprLr';
+/*
+|--------------------------------------------------------------------------
+| تنويع المحتوى
+|--------------------------------------------------------------------------
+*/
+$introList = [
+    "🤍 صلّ على النبي",
+    "🌿 تذكير طيب",
+    "✨ لا تنس الصلاة على النبي",
+    "💚 من أفضل الذكر",
+    "🕊️ نور يومك بالصلاة على النبي"
+];
 
-$message = "إِنَّ اللَّهَ وَمَلَائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ ۚ يَا أَيُّهَا الَّذِينَ آمَنُوا صَلُّوا عَلَيْهِ وَسَلِّمُوا تَسْلِيمًا ﷺ.";
+$ctaList = [
+    "اللهم صل وسلم على نبينا محمد",
+    "رددها الآن 🤍",
+    "اكتبها في التعليقات 💬",
+    "شاركها ولك الأجر",
+    "صلّ عليه وسلم تسليماً"
+];
 
-$url = "https://graph.facebook.com/v19.0/{$pageId}/feed";
+$hashtags = [
+    "#صلوا_على_النبي",
+    "#محمد",
+    "#ذكر",
+    "#اسلام",
+    "#اللهم_صل_على_محمد",
+    "#islam",
+    "#muslim"
+];
+
+/*
+|--------------------------------------------------------------------------
+| اختيار عشوائي
+|--------------------------------------------------------------------------
+*/
+shuffle($introList);
+shuffle($ctaList);
+shuffle($hashtags);
+
+$intro = $introList[0];
+$cta   = $ctaList[0];
+$tags  = implode(" ", array_slice($hashtags, 0, 3)); // 3 هاشتاجات فقط
+
+/*
+|--------------------------------------------------------------------------
+| تكوين الرسالة
+|--------------------------------------------------------------------------
+*/
+$message = $intro
+    . "\n\n" . $baseMessage
+    . "\n\n" . $cta
+    . "\n\n" . $tags;
+
+/*
+|--------------------------------------------------------------------------
+| النشر
+|--------------------------------------------------------------------------
+*/
+$url = "https://graph.facebook.com/v23.0/{$pageId}/feed";
 
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-    'message' => $message,
-    'access_token' => $token
-]));
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt_array($ch, [
+    CURLOPT_URL => $url,
+    CURLOPT_POST => true,
+    CURLOPT_POSTFIELDS => http_build_query([
+        'message' => $message,
+        'access_token' => $accessToken
+    ]),
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 30
+]);
 
 $response = curl_exec($ch);
+
+if (curl_errno($ch)) {
+    die("Curl Error: " . curl_error($ch));
+}
+
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
+$result = json_decode($response, true);
 
-echo $response;
+/*
+|--------------------------------------------------------------------------
+| النتيجة
+|--------------------------------------------------------------------------
+*/
+if ($httpCode === 200 && isset($result['id'])) {
+    echo "تم النشر بنجاح\n\n";
+    echo $message;
+} else {
+    echo "فشل النشر:\n";
+    echo $response;
+}
+?>
