@@ -8,7 +8,7 @@ mb_internal_encoding('UTF-8');
 |--------------------------------------------------------------------------
 */
 $pageId = '434309674008905';
-$accessToken = 'EAARdg15lAY8BSe73AhF2sVr4m7fwXboCZCnqMXrkGgsF93druG0laK14sfJRiVm9c3FxgvaYimLzstHPFkpXzEJsu65oNOyIUIgdSEVllxJGecZCTkCfvckmxkZAUrciAA7DXeGBl4BfvOZC40y3fWgDZAlpEBv25FYSIRqAqRaOVZAJGeZBVHGUt63GPtUR11nxbERgyGNW9QZBeZCL6k3ulZBwPj3g5j9IoXCNtX0w8ZD';
+$accessToken = 'EAARdg15lAY8BSSOZCuzBq7xLpKVVRwlb41BMwEcZAXnbD65x6AdDDxoMf2NoXqH0BZConBvxcHA8mb5auwTB5UYZAviyTySJJbk56hEn1sEH1zyAcTLd2Fm1VVIrLVBe2WlNd2aMe2nRyc7afA4dOIy3cwaBWh588n5o8fFK47eVNB03l92paZAFiX1sMTpmuQSLX';
 
 /*
 |--------------------------------------------------------------------------
@@ -19,14 +19,14 @@ function httpGetJson($url, $timeout = 20)
 {
     $ch = curl_init();
     curl_setopt_array($ch, [
-        CURLOPT_URL => $url,
+        CURLOPT_URL            => $url,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CONNECTTIMEOUT => 10,
-        CURLOPT_TIMEOUT => $timeout,
+        CURLOPT_TIMEOUT        => $timeout,
         CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_HTTPHEADER => [
-            'Accept: application/json'
-        ]
+        CURLOPT_HTTPHEADER     => [
+            'Accept: application/json',
+        ],
     ]);
 
     $response = curl_exec($ch);
@@ -44,17 +44,17 @@ function httpGetJson($url, $timeout = 20)
 
     if ($httpCode < 200 || $httpCode >= 300) {
         return [
-            'ok' => false,
+            'ok'    => false,
             'error' => 'HTTP ' . $httpCode,
-            'body' => $response
+            'body'  => $response,
         ];
     }
 
     if (!is_array($json)) {
         return [
-            'ok' => false,
+            'ok'    => false,
             'error' => 'Invalid JSON response',
-            'body' => $response
+            'body'  => $response,
         ];
     }
 
@@ -65,13 +65,13 @@ function httpPostForm($url, array $data, $timeout = 25)
 {
     $ch = curl_init();
     curl_setopt_array($ch, [
-        CURLOPT_URL => $url,
-        CURLOPT_POST => true,
-        CURLOPT_POSTFIELDS => http_build_query($data),
+        CURLOPT_URL            => $url,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => http_build_query($data),
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CONNECTTIMEOUT => 10,
-        CURLOPT_TIMEOUT => $timeout,
-        CURLOPT_SSL_VERIFYPEER => true
+        CURLOPT_TIMEOUT        => $timeout,
+        CURLOPT_SSL_VERIFYPEER => true,
     ]);
 
     $response = curl_exec($ch);
@@ -89,10 +89,10 @@ function httpPostForm($url, array $data, $timeout = 25)
 
     if ($httpCode < 200 || $httpCode >= 300) {
         return [
-            'ok' => false,
+            'ok'    => false,
             'error' => 'HTTP ' . $httpCode,
-            'body' => $response,
-            'json' => $json
+            'body'  => $response,
+            'json'  => $json,
         ];
     }
 
@@ -112,46 +112,37 @@ function pickOne(array $items)
     return $items[array_rand($items)];
 }
 
-function pickRandomTags(array $tags, $count = 3)
-{
-    $tags = array_values(array_unique($tags));
-    shuffle($tags);
-    return implode(' ', array_slice($tags, 0, min($count, count($tags))));
-}
-
 /*
 |--------------------------------------------------------------------------
-| محتوى متنوع للبروفايل البصري للنص
+| محتوى متنوع — مداخل غنية وتأملية
 |--------------------------------------------------------------------------
 */
 $introTemplates = [
     "﴿ آية اليوم ﴾",
-    "🌿 من نور القرآن",
+    "📖 وقفة مع آية من كتاب الله",
+    "🌿 من نور القرآن الكريم",
     "🤍 تذكير قرآني",
-    "📖 وقفة مع آية",
-    "✨ آية عطرة من كتاب الله",
-    "🕊️ غذاء للروح",
-    "💚 آية تهدّي القلب"
+    "✨ آية تُنير الدرب",
+    "🕊️ غذاء الروح من كتاب الله",
+    "💚 تأمّل في آية",
+    "🌙 نور من كلام الله",
+    "📜 من جوامع الآيات",
 ];
 
-$ctaTemplates = [
-    "اللهم اجعلها في ميزان حسناتنا.",
-    "انشرها لعلها تكون سبب خير.",
-    "شاركها تؤجر بإذن الله.",
-    "ذكر بها غيرك لعل الله ينفع بها.",
-    "اللهم ارزقنا التدبر والعمل."
-];
-
-$hashtags = [
-    "#قرآن",
-    "#آية_اليوم",
-    "#تدبر",
-    "#ذكر",
-    "#اسلام",
-    "#quran",
-    "#islam",
-    "#muslim",
-    "#القرآن_الكريم"
+/*
+|--------------------------------------------------------------------------
+| أدعية ختامية — بدون استدراج تفاعل
+|--------------------------------------------------------------------------
+*/
+$closingTemplates = [
+    "اللهم اجعل القرآن ربيع قلوبنا ونور صدورنا.",
+    "اللهم ارزقنا تلاوته وتدبّره والعمل به.",
+    "اللهم ذكّرنا منه ما نُسّينا وعلّمنا منه ما جهلنا.",
+    "اللهم اجعله حجة لنا لا علينا.",
+    "اللهم انفعنا بالقرآن العظيم واجعله نورًا لنا يوم القيامة.",
+    "نسأل الله أن ينفعنا وإياكم بكتابه الكريم.",
+    "اللهم اجعلنا من أهل القرآن الذين هم أهلك وخاصتك.",
+    "سبحان الله وبحمده.. سبحان الله العظيم.",
 ];
 
 /*
@@ -159,7 +150,7 @@ $hashtags = [
 | جلب آية عشوائية
 |--------------------------------------------------------------------------
 */
-$quranApiUrl = "https://api.alquran.cloud/v1/ayah/random/ar.quran-simple";
+$quranApiUrl   = "https://api.alquran.cloud/v1/ayah/random/ar.quran-simple";
 $quranResponse = httpGetJson($quranApiUrl);
 
 if (!$quranResponse['ok']) {
@@ -185,19 +176,19 @@ if ($ayahText === '' || $surahName === '' || $ayahNumber === '') {
 
 /*
 |--------------------------------------------------------------------------
-| تكوين أفضل رسالة نصية للنشر
+| تكوين المنشور
 |--------------------------------------------------------------------------
 */
-$intro = pickOne($introTemplates);
-$cta   = pickOne($ctaTemplates);
-$tags  = pickRandomTags($hashtags, 3);
+$intro   = pickOne($introTemplates);
+$closing = pickOne($closingTemplates);
 
 $messageParts = [
     $intro,
-    $ayahText,
-    "[" . $surahName . " - الآية " . $ayahNumber . "]",
-    $cta,
-    $tags
+    "﴿ " . $ayahText . " ﴾",
+    "[ " . $surahName . " — الآية " . $ayahNumber . " ]",
+    "┈ ┈ ┈ ┈ ┈ ┈ ┈ ┈ ┈",
+    $closing,
+    "#القرآن_الكريم",
 ];
 
 $message = implode("\n\n", $messageParts);
@@ -207,14 +198,12 @@ $message = cleanArabicText($message);
 |--------------------------------------------------------------------------
 | النشر على فيسبوك
 |--------------------------------------------------------------------------
-| استخدمت v23.0 كإصدار حديث من Graph API.
-|--------------------------------------------------------------------------
 */
 $fbUrl = "https://graph.facebook.com/v23.0/{$pageId}/feed";
 
 $postData = [
-    'message' => $message,
-    'access_token' => $accessToken
+    'message'      => $message,
+    'access_token' => $accessToken,
 ];
 
 $publishResponse = httpPostForm($fbUrl, $postData);
@@ -239,13 +228,12 @@ if (!$publishResponse['ok']) {
 $result = $publishResponse['data'];
 
 if (isset($result['id'])) {
-    echo "تم النشر بنجاح.\n";
+    echo "تم النشر بنجاح ✅\n";
     echo "Post ID: " . $result['id'] . "\n\n";
     echo "نص المنشور:\n";
     echo "-----------------------------\n";
-    echo $message;
+    echo $message . "\n";
 } else {
     echo "تم إرسال الطلب لكن الاستجابة غير متوقعة:\n";
     print_r($result);
 }
-?>

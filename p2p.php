@@ -10,7 +10,7 @@ mb_internal_encoding('UTF-8');
 
 $pageId = '434309674008905';
 
-$accessToken = 'EAARdg15lAY8BSe73AhF2sVr4m7fwXboCZCnqMXrkGgsF93druG0laK14sfJRiVm9c3FxgvaYimLzstHPFkpXzEJsu65oNOyIUIgdSEVllxJGecZCTkCfvckmxkZAUrciAA7DXeGBl4BfvOZC40y3fWgDZAlpEBv25FYSIRqAqRaOVZAJGeZBVHGUt63GPtUR11nxbERgyGNW9QZBeZCL6k3ulZBwPj3g5j9IoXCNtX0w8ZD';
+$accessToken = 'EAARdg15lAY8BSSOZCuzBq7xLpKVVRwlb41BMwEcZAXnbD65x6AdDDxoMf2NoXqH0BZConBvxcHA8mb5auwTB5UYZAviyTySJJbk56hEn1sEH1zyAcTLd2Fm1VVIrLVBe2WlNd2aMe2nRyc7afA4dOIy3cwaBWh588n5o8fFK47eVNB03l92paZAFiX1sMTpmuQSLX';
 
 $publishedFile = __DIR__ . '/published_hadiths.json';
 
@@ -323,60 +323,34 @@ function savePublishedHadiths(
 */
 
 $introTemplates = [
-
     "﴿ حديث اليوم ﴾",
-
     "📖 من هدي النبي ﷺ",
-
-    "🤍 حديث نبوي",
-
+    "🤍 حديث نبوي شريف",
     "🌿 من سنة رسول الله ﷺ",
-
-    "✨ تذكير من السنة النبوية",
-
-    "🕊️ نور من هدي النبي ﷺ",
-
-    "💚 وقفة مع حديث",
+    "✨ وقفة مع السنة النبوية",
+    "🕊️ نور من هدي المصطفى ﷺ",
+    "💚 من كنوز السنة النبوية",
+    "📜 حديث يُنير الدرب",
+    "🌙 تأمّل في حديث نبوي",
 ];
 
 
 $ctaTemplates = [
-
     "اللهم ارزقنا العمل بسنة نبيك ﷺ.",
-
     "اللهم اجعلنا ممن يستمعون القول فيتبعون أحسنه.",
-
-    "انشرها لعلها تكون سببًا في تذكير غيرك.",
-
-    "شارك الحديث لعل الله ينفع به.",
-
-    "اللهم صل وسلم وبارك على نبينا محمد ﷺ.",
-
+    "اللهم صلِّ وسلِّم وبارك على نبينا محمد ﷺ.",
     "اللهم ارزقنا اتباع سنة نبيك ﷺ.",
+    "اللهم انفعنا بما علّمتنا وعلّمنا ما ينفعنا.",
+    "نسأل الله أن ينفعنا وإياكم بهدي النبي ﷺ.",
+    "اللهم اجعل القرآن والسنة نور قلوبنا.",
+    "اللهم اجمعنا بنبيك ﷺ في الفردوس الأعلى.",
 ];
 
 
 $hashtags = [
-
-    "#حديث_اليوم",
-
-    "#الحديث_النبوي",
-
+    "#حديث_نبوي",
     "#السنة_النبوية",
-
-    "#حديث",
-
-    "#محمد_ﷺ",
-
-    "#سنة_النبي",
-
-    "#اسلام",
-
-    "#المسلمين",
-
-    "#ذكر",
-
-    "#نصيحة",
+    "#حديث_اليوم",
 ];
 
 
@@ -732,72 +706,31 @@ $cta =
     );
 
 
-$tags =
-    pickRandomTags(
-        $hashtags,
-        4
-    );
+$tags = pickRandomTags($hashtags, 1);
 
+$messageParts = [$intro];
+$messageParts[] = "قال رسول الله ﷺ:\n«" . $hadithText . "»";
 
-$messageParts = [
-
-    $intro,
-
-    "قال رسول الله ﷺ:",
-
-    "«" .
-    $hadithText .
-    "»",
-];
-
-
+$sourceLines = [];
 if ($attribution !== '') {
-
-    $messageParts[] =
-        "📚 " .
-        $attribution;
+    $sourceLines[] = "📚 " . $attribution;
 }
-
-
 if ($grade !== '') {
-
-    $messageParts[] =
-        "🔎 درجة الحديث: " .
-        $grade;
+    $sourceLines[] = "🔎 " . $grade;
+}
+if ($reference !== '' && mb_strlen($reference) <= 100) {
+    $sourceLines[] = "📖 " . $reference;
+}
+if (!empty($sourceLines)) {
+    $messageParts[] = implode("\n", $sourceLines);
 }
 
+$messageParts[] = "┈ ┈ ┈ ┈ ┈ ┈ ┈ ┈ ┈";
+$messageParts[] = $cta;
+$messageParts[] = $tags;
 
-if ($reference !== '') {
-
-    $messageParts[] =
-        "📖 المصدر: " .
-        $reference;
-}
-
-
-$messageParts[] =
-    "🔗 HadeethEnc.com";
-
-
-$messageParts[] =
-    $cta;
-
-
-$messageParts[] =
-    $tags;
-
-
-$message =
-    implode(
-        "\n\n",
-        $messageParts
-    );
-
-
-$message =
-    cleanArabicText(
-        $message
-    );
+$message = implode("\n\n", $messageParts);
+$message = cleanArabicText($message);
 
 
 /*
