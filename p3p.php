@@ -98,7 +98,8 @@ $quotes = [
 /**
  * Executes a shell command securely and checks the exit code.
  */
-function executeCommand($command) {
+function executeCommand($command)
+{
     exec($command . ' 2>&1', $output, $return_var);
     if ($return_var !== 0) {
         die("Command Failed: $command\nError: " . implode("\n", $output) . "\n");
@@ -109,25 +110,30 @@ function executeCommand($command) {
 /**
  * Checks if 'magick' or 'convert' is available.
  */
-function getImCommand() {
+function getImCommand()
+{
     exec('which magick 2>/dev/null', $output, $return_var);
-    if ($return_var === 0) return 'magick';
+    if ($return_var === 0)
+        return 'magick';
     exec('which convert 2>/dev/null', $output, $return_var);
-    if ($return_var === 0) return 'convert';
+    if ($return_var === 0)
+        return 'convert';
     die("ImageMagick is not installed.\n");
 }
 
 /**
  * Escapes text for safe use within Pango markup.
  */
-function pangoEscape($text) {
+function pangoEscape($text)
+{
     return htmlspecialchars($text, ENT_QUOTES | ENT_XML1, 'UTF-8');
 }
 
 /**
  * Prepares the background: resize, crop, slightly dim brightness & saturation.
  */
-function prepareBackground($inputBg, $outputBg, $imCmd) {
+function prepareBackground($inputBg, $outputBg, $imCmd)
+{
     // Resize & Crop exactly to 1080x1080, modulate to reduce brightness/saturation for cinematic look
     $cmd = sprintf(
         "%s %s -resize 1080x1080^ -gravity center -extent 1080x1080 -modulate 90,85 %s",
@@ -141,26 +147,31 @@ function prepareBackground($inputBg, $outputBg, $imCmd) {
 /**
  * Calculates initial font size based on text length.
  */
-function calculateInitialFontSize($textLength) {
-    if ($textLength <= 35) return 82;
-    if ($textLength <= 65) return 70;
-    if ($textLength <= 100) return 58;
+function calculateInitialFontSize($textLength)
+{
+    if ($textLength <= 35)
+        return 82;
+    if ($textLength <= 65)
+        return 70;
+    if ($textLength <= 100)
+        return 58;
     return 50;
 }
 
 /**
  * Creates the main text image, dynamically adjusting font size to fit Safe Area.
  */
-function createTextImage($quote, $outputPath, $imCmd, $fonts, $maxWidth, $maxHeight) {
+function createTextImage($quote, $outputPath, $imCmd, $fonts, $maxWidth, $maxHeight)
+{
     $text = pangoEscape($quote['text']);
     $font = $fonts['primary'];
     $color = '#FFFDF8';
     $fontSize = calculateInitialFontSize(mb_strlen($quote['text']));
-    
+
     // Fallback protection loop to ensure text fits inside Safe Area without getting clipped
     while ($fontSize >= 30) {
         $markup = "<span font='{$font} {$fontSize}' foreground='{$color}'>{$text}</span>";
-        
+
         $cmd = sprintf(
             "%s -background transparent -gravity center -size %dx pango:%s %s",
             escapeshellcmd($imCmd),
@@ -169,20 +180,20 @@ function createTextImage($quote, $outputPath, $imCmd, $fonts, $maxWidth, $maxHei
             escapeshellarg($outputPath)
         );
         executeCommand($cmd);
-        
+
         // Get height
         $identifyBin = ($imCmd === 'magick') ? 'magick identify' : 'identify';
         $identifyCmd = sprintf("%s -format '%%h' %s", $identifyBin, escapeshellarg($outputPath));
         exec($identifyCmd, $heightOut, $ret);
-        $imgHeight = (isset($heightOut[0]) && $ret === 0) ? (int)$heightOut[0] : 0;
-        
+        $imgHeight = (isset($heightOut[0]) && $ret === 0) ? (int) $heightOut[0] : 0;
+
         if ($imgHeight > 0 && $imgHeight <= $maxHeight) {
             // Found suitable size, break
             break;
         }
         $fontSize -= 4; // Decrease font size and try again
     }
-    
+
     // Generate Shadow File
     $shadowPath = str_replace('.png', '_shadow.png', $outputPath);
     $cmdShadow = sprintf(
@@ -192,7 +203,7 @@ function createTextImage($quote, $outputPath, $imCmd, $fonts, $maxWidth, $maxHei
         escapeshellarg($shadowPath)
     );
     executeCommand($cmdShadow);
-    
+
     return [
         'text' => $outputPath,
         'shadow' => $shadowPath
@@ -202,17 +213,18 @@ function createTextImage($quote, $outputPath, $imCmd, $fonts, $maxWidth, $maxHei
 /**
  * Creates the source text image (if provided).
  */
-function createSourceImage($sourceText, $outputPath, $imCmd, $fonts) {
+function createSourceImage($sourceText, $outputPath, $imCmd, $fonts)
+{
     if (empty($sourceText)) {
         $cmd = sprintf("%s -size 1x1 xc:transparent %s", escapeshellcmd($imCmd), escapeshellarg($outputPath));
         executeCommand($cmd);
         return;
     }
-    
+
     $text = pangoEscape($sourceText);
     $font = $fonts['secondary'];
     $markup = "<span font='{$font} 30' foreground='#ffffff' alpha='80%'>{$text}</span>";
-    
+
     $cmd = sprintf(
         "%s -background transparent -gravity center -size 600x pango:%s %s",
         escapeshellcmd($imCmd),
@@ -225,11 +237,12 @@ function createSourceImage($sourceText, $outputPath, $imCmd, $fonts) {
 /**
  * Creates the footer (page signature) image.
  */
-function createFooterImage($outputPath, $imCmd, $fonts) {
+function createFooterImage($outputPath, $imCmd, $fonts)
+{
     $text = pangoEscape("الأثر الطيب");
     $font = $fonts['secondary'];
     $markup = "<span font='{$font} 26' foreground='#ffffff' alpha='60%'>{$text}</span>";
-    
+
     $cmd = sprintf(
         "%s -background transparent -gravity center -size 400x pango:%s %s",
         escapeshellcmd($imCmd),
@@ -242,7 +255,8 @@ function createFooterImage($outputPath, $imCmd, $fonts) {
 /**
  * Composes everything together into the final image.
  */
-function composeFinalImage($bg, $textFiles, $sourceImg, $footerImg, $finalOut, $imCmd) {
+function composeFinalImage($bg, $textFiles, $sourceImg, $footerImg, $finalOut, $imCmd)
+{
     $radialGradient = escapeshellarg('radial-gradient:rgba(0,0,0,0.6)-none');
     $cmd = sprintf(
         "%s %s " .
@@ -263,27 +277,28 @@ function composeFinalImage($bg, $textFiles, $sourceImg, $footerImg, $finalOut, $
         escapeshellarg($footerImg),
         escapeshellarg($finalOut)
     );
-    
+
     executeCommand($cmd);
 }
 
 /**
  * Publishes image to Facebook Graph API.
  */
-function publishToFacebook($imagePath, $pageId, $accessToken) {
+function publishToFacebook($imagePath, $pageId, $accessToken)
+{
     $url = "https://graph.facebook.com/v23.0/{$pageId}/photos";
 
     $ch = curl_init();
     curl_setopt_array($ch, [
-        CURLOPT_URL            => $url,
-        CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => [
-            'message'      => "🌿\n\n#الأثر_الطيب",
-            'source'       => new CURLFile($imagePath),
+        CURLOPT_URL => $url,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => [
+            'message' => "🌿\n\n#الأثر_الطيب",
+            'source' => new CURLFile($imagePath),
             'access_token' => $accessToken,
         ],
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 60,
+        CURLOPT_TIMEOUT => 60,
     ]);
 
     $response = curl_exec($ch);
@@ -323,8 +338,8 @@ $selectedQuote = $quotes[array_rand($quotes)];
 
 // Select random background
 $backgrounds = [
-    __DIR__ . '/bg1.png', 
-    __DIR__ . '/bg2.png', 
+    __DIR__ . '/bg1.png',
+    __DIR__ . '/bg2.png',
     __DIR__ . '/bg3.png'
 ];
 $inputBg = $backgrounds[array_rand($backgrounds)];
@@ -345,34 +360,35 @@ $finalImage = __DIR__ . "/final_post.jpg"; // Must be in working dir for FB CURL
 try {
     // 1. Prepare BG
     prepareBackground($inputBg, $tmpBg, $imCmd);
-    
+
     // 2. Generate Text Image
     $textFiles = createTextImage($selectedQuote, $tmpText, $imCmd, $fonts, $maxTextWidth, $maxTextHeight);
-    
+
     // 3. Generate Source Image
     createSourceImage($selectedQuote['source'], $tmpSource, $imCmd, $fonts);
-    
+
     // 4. Generate Footer Image
     createFooterImage($tmpFooter, $imCmd, $fonts);
-    
+
     // 5. Combine All
     composeFinalImage($tmpBg, $textFiles, $tmpSource, $tmpFooter, $finalImage, $imCmd);
-    
+
     // 6. Publish
     $isSuccess = publishToFacebook($finalImage, $pageId, $accessToken);
-    
+
     // 7. Cleanup
     if ($isSuccess && $deleteImageAfterSuccessfulPost) {
         @unlink($finalImage);
     }
-    
+
 } catch (Exception $e) {
     echo "حدث خطأ أثناء المعالجة: " . $e->getMessage() . "\n";
 } finally {
     // Always cleanup tmp files
     @unlink($tmpBg);
     @unlink($tmpText);
-    if (isset($textFiles['shadow'])) @unlink($textFiles['shadow']);
+    if (isset($textFiles['shadow']))
+        @unlink($textFiles['shadow']);
     @unlink($tmpSource);
     @unlink($tmpFooter);
 }
