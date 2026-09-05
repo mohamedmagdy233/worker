@@ -1,0 +1,28 @@
+name: Post Prophet Daily
+
+on:
+  schedule:
+    - cron: '0 8 * * *' # 8 صباحاً بتوقيت UTC (حوالي 11 الصبح بتوقيت مصر/مكة)
+    - cron: '0 20 * * *' # 8 مساءً بتوقيت UTC (حوالي 11 بليل)
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # الخطوة دي مهمة جداً عشان الصور تطلع بخط النسخ العربي المضبوط
+      - name: Install Arabic Fonts & ImageMagick
+        run: sudo apt-get update && sudo apt-get install -y fonts-noto-core fonts-noto-arabic imagemagick
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: imagick, curl, mbstring # تأكيد على تفعيل الإضافات المطلوبة للسكربت
+
+      - name: Run Publishing Script
+        run: php p3p.php
+        env:
+          FB_TOKEN: ${{ secrets.FB_TOKEN }}
