@@ -15,7 +15,7 @@ jobs:
 
       # الخطوة دي مهمة جداً عشان الصور تطلع بخط النسخ العربي المضبوط
       - name: Install Arabic Fonts & ImageMagick
-        run: sudo apt-get update && sudo apt-get install -y fonts-noto-core fonts-noto-arabic imagemagick
+        run: sudo apt-get update && sudo apt-get install -y fonts-noto-core fonts-noto imagemagick
 
       - uses: shivammathur/setup-php@v2
         with:
